@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>請求書生成ツール</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .item-row {
+            margin-bottom: 10px;
+        }
+        .add-item-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PDF請求書生成ツール</h1>
+            <p>必要事項を入力して、請求書PDFを生成します</p>
+            <a href="{{ url_for('history') }}" class="btn btn-secondary">履歴を見る</a>
+        </div>
+
+        <form action="{{ url_for('generate_pdf') }}" method="post">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="customer_name" class="form-label">顧客名</label>
+                    <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="invoice_date" class="form-label">請求日</label>
+                    <input type="date" class="form-control" id="invoice_date" name="invoice_date" 
+                           value="{{ now.strftime('%Y-%m-%d') }}" required>
+                </div>
+            </div>
+
+            <h3>明細項目</h3>
+            <div id="items-container">
+                <div class="item-row row">
+                    <div class="col-md-5">
+                        <label class="form-label">商品名</label>
+                        <input type="text" class="form-control" name="item_name_0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">単価</label>
+                        <input type="number" class="form-control" name="item_price_0" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">数量</label>
+                        <input type="number" class="form-control" name="item_quantity_0" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-danger form-control remove-item">削除</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="add-item" class="btn btn-secondary add-item-btn">＋ 項目を追加</button>
+
+            <div class="mb-3 mt-4">
+                <label for="remarks" class="form-label">備考</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">PDFを生成</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let itemCount = 1;
+
+            // 項目追加ボタン
+            document.getElementById('add-item').addEventListener('click', function() {
+                const container = document.getElementById('items-container');
+                const newRow = document.createElement('div');
+                newRow.className = 'item-row row';
+                newRow.innerHTML = `
+                    <div class="col-md-5">
+                        <label class="form-label">商品名</label>
+                        <input type="text" class="form-control" name="item_name_${itemCount}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">単価</label>
+                        <input type="number" class="form-control" name="item_price_${itemCount}" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">数量</label>
+                        <input type="number" class="form-control" name="item_quantity_${itemCount}" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-danger form-control remove-item">削除</button>
+                    </div>
+                `;
+                container.appendChild(newRow);
+                itemCount++;
+
+                // 削除ボタンにイベントリスナーを追加
+                addRemoveListeners();
+            });
+
+            // 削除ボタンのイベントリスナー
+            function addRemoveListeners() {
+                document.querySelectorAll('.remove-item').forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.closest('.item-row').remove();
+                    });
+                });
+            }
+
+            // 初期の削除ボタンにイベントリスナーを追加
+            addRemoveListeners();
+        });
+    </script>
+</body>
+</html>

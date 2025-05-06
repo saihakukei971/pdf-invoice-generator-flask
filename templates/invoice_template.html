@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>請求書</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: "Helvetica", "Arial", "游ゴシック", "YuGothic", sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            font-size: 12px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .company-info {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .document-title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .customer-info {
+            margin-bottom: 30px;
+        }
+        .invoice-meta {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        .invoice-number {
+            margin-bottom: 5px;
+        }
+        .invoice-date {
+            margin-bottom: 20px;
+        }
+        .customer-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .total-section {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+        }
+        .total-label {
+            width: 150px;
+            text-align: right;
+            padding-right: 20px;
+        }
+        .total-value {
+            width: 150px;
+            text-align: right;
+        }
+        .grand-total {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .remarks {
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .remarks-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #777;
+            font-size: 10px;
+        }
+        .logo {
+            width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between;">
+                <div>
+                    <!-- ロゴ画像 -->
+                    <svg class="logo" viewBox="0 0 200 50">
+                        <rect x="10" y="10" width="30" height="30" fill="#007BFF" />
+                        <text x="50" y="30" font-family="Arial" font-size="20" fill="#333">{{ company_name }}</text>
+                    </svg>
+                </div>
+                <div class="company-info">
+                    <div class="company-name">{{ company_name }}</div>
+                    <div>{{ company_address }}</div>
+                    <div>TEL: {{ company_tel }}</div>
+                    <div>Email: {{ company_email }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="document-title">請求書</div>
+
+        <div style="display: flex; justify-content: space-between;">
+            <div class="customer-info">
+                <div class="customer-name">{{ customer_name }} 様</div>
+                <p>下記の通りご請求申し上げます。</p>
+            </div>
+
+            <div class="invoice-meta">
+                <div class="invoice-number">請求書番号: {{ invoice_number }}</div>
+                <div class="invoice-date">請求日: {{ invoice_date }}</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>項目</th>
+                    <th class="text-right">単価</th>
+                    <th class="text-right">数量</th>
+                    <th class="text-right">金額</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td class="text-right">¥{{ "{:,}".format(item.price) }}</td>
+                    <td class="text-right">{{ item.quantity }}</td>
+                    <td class="text-right">¥{{ "{:,}".format(item.subtotal) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <div class="total-row">
+                <div class="total-label">小計:</div>
+                <div class="total-value">¥{{ "{:,}".format(subtotal) }}</div>
+            </div>
+            <div class="total-row">
+                <div class="total-label">消費税 (10%):</div>
+                <div class="total-value">¥{{ "{:,}".format(tax) }}</div>
+            </div>
+            <div class="total-row grand-total">
+                <div class="total-label">合計:</div>
+                <div class="total-value">¥{{ "{:,}".format(total) }}</div>
+            </div>
+        </div>
+
+        {% if remarks %}
+        <div class="remarks">
+            <div class="remarks-title">備考:</div>
+            <div>{{ remarks | nl2br }}</div>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <p>本請求書は自動生成されています。</p>
+        </div>
+    </div>
+</body>
+</html>
